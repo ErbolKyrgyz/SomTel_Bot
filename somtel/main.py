@@ -1,12 +1,14 @@
+import os 
 import asyncio
 import aiohttp
 import time
+from keep_alive import keep_alive
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 # --- TOKEN ---
-TOKEN_API = "7583391474:AAF2dsZQCkizbVDuZzRMVEXzkIkExTeWY9w"
+TOKEN_API = os.getenv("7583391474:AAF2dsZQCkizbVDuZzRMVEXzkIkExTeWY9w")
 
 bot = Bot(token=TOKEN_API)
 dp = Dispatcher()
@@ -54,25 +56,25 @@ LANGS = {
         "rate_error": "❌ Döviz kurları alınamadı. Lütfen tekrar deneyin.",
         "contact": "📞 İletişim Bilgileri:\n🇹🇷 WhatsApp: +905059389919\n📧 Email: janyshov04@gmail.com\n🇰🇬 Telefon: +996700200406"
     },
-    "en": {
-        "welcome": "Welcome! 💰 I am SOMTEL. With this bot, you can learn about money transfers, commission fees, and currency exchange rates.",
-        "menu": "🏠 Main Menu\nPlease select what you want to do:",
-        "options": [
-            "1️⃣ About SOMTEL",
-            "2️⃣ Calculate Fee",
-            "3️⃣ Exchange Rates",
-            "4️⃣ Help / Contact"
-        ],
-        "back": "🔙 Back",
-        "select_country": "🌍 Select sending country:",
-        "send_country": "🇹🇷 Turkey",
-        "recv_country": "🇰🇬 Kyrgyzstan",
-        "amount_info": "💡 Commission rates:\n\n🇹🇷 **From Turkey (TRY)**:\n1-19999 = 2%\n20000-34999 = 1.7%\n35000+ = 1.5%\n\n🇰🇬 **From Kyrgyzstan (SOM)**:\n1-49999 = 2.2%\n50000-99999 = 1.8%\n100000+ = 1.5%\n\n💰 **Enter amount to send:**",
-        "enter_amount": "💰 Enter the amount:",
-        "result": "Fee: {fee:.2f} {currency}",
-        "rate_error": "❌ Could not retrieve exchange rates. Try again later.",
-        "contact": "📞 Contact Info:\n🇹🇷 WhatsApp: +905059389919\n📧 Email: janyshov04@gmail.com\n🇰🇬 Phone: +996700200406"
-    }
+    "ru": {
+    "welcome": "Добро пожаловать! 💰 Я — SOMTEL. С помощью этого бота вы можете узнать о денежных переводах, комиссиях и обменных курсах.",
+    "menu": "🏠 Главное меню\nПожалуйста, выберите, что вы хотите сделать:",
+    "options": [
+        "1️⃣ О компании SOMTEL",
+        "2️⃣ Рассчитать комиссию",
+        "3️⃣ Курсы валют",
+        "4️⃣ Помощь / Контакты"
+    ],
+    "back": "🔙 Назад",
+    "select_country": "🌍 Выберите страну отправления:",
+    "send_country": "🇹🇷 Турция",
+    "recv_country": "🇰🇬 Кыргызстан",
+    "amount_info": "💡 Тарифы комиссии:\n\n🇹🇷 **Из Турции (TRY)**:\n1-19999 = 2%\n20000-34999 = 1.7%\n35000+ = 1.5%\n\n🇰🇬 **Из Кыргызстана (SOM)**:\n1-49999 = 2.2%\n50000-99999 = 1.8%\n100000+ = 1.5%\n\n💰 **Введите сумму для перевода:**",
+    "enter_amount": "💰 Введите сумму:",
+    "result": "Комиссия: {fee:.2f} {currency}",
+    "rate_error": "❌ Не удалось получить курсы валют. Попробуйте позже.",
+    "contact": "📞 Контактная информация:\n🇹🇷 WhatsApp: +905059389919\n📧 Email: janyshov04@gmail.com\n🇰🇬 Телефон: +996700200406"
+}
 }
 
 user_language = {}
@@ -104,9 +106,9 @@ async def start(message: Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🇰🇬 Кыргызча", callback_data="lang_kg")],
         [InlineKeyboardButton(text="🇹🇷 Türkçe", callback_data="lang_tr")],
-        [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang_en")],
+        [InlineKeyboardButton(text="ru Русский", callback_data="lang_ru")],
     ])
-    await message.answer("🌍 Dil seçiniz / Choose your language / Тилди тандаңыз:", reply_markup=keyboard)
+    await message.answer("🌍 Dil seçiniz / Выберите язык / Тилди тандаңыз:", reply_markup=keyboard)
 
 # --- Dil seçimi ---
 @dp.callback_query(lambda c: c.data.startswith("lang_"))
@@ -128,9 +130,47 @@ async def handle_menu(callback_query: CallbackQuery):
 
     if data == "menu_1":  # SOMTEL hakkında bilgi
         info = {
-            "tr": "📘 SOMTEL, Türkiye ve Kırgızistan arasında hızlı, güvenli ve düşük ücretli para transfer hizmeti sunar.",
-            "kg": "📘 SOMTEL - Түркия менен Кыргызстандын ортосундагы тез жана коопсуз акча жөнөтүү кызматын сунуштайт.",
-            "en": "📘 SOMTEL offers fast, secure, and low-cost money transfers between Turkey and Kyrgyzstan."
+            "tr": "SomTel, Kırgızistan ile Türkiye arasında hızlı, güvenli ve uygun maliyetli para transferi hizmeti sunmak amacıyla kurulmuş uluslararası bir şirkettir."
+                "Misyonumuz, her müşterimize güvenilir, şeffaf ve kolay bir transfer deneyimi yaşatmaktır."
+                ""
+                "Biz biliyoruz ki, memlekete para göndermek sadece finansal bir işlem değil — aileye duyulan sevginin ve sorumluluğun bir göstergesidir."
+                "Bu yüzden SomTel, her transferi kendi parasıymış gibi korur ve her müşterisini bir dost gibi görür."
+                ""
+                "SomTel ile:"
+                "✅ Paranız birkaç dakika içinde güvenle ulaşır."
+                "✅ Tüm bilgileriniz şifreli ve korunur."
+                "✅ Komisyon oranlarımız her zaman adil ve şeffaftır."
+                "✅ Destek ekibimiz her zaman size yardımcı olmaya hazırdır."
+                ""
+                "SomTel, Kırgızistan ile Türkiye arasındaki güven köprüsüdür."
+                "Bizim için her işlem bir sayı değil, bir insan hikayesidir — sevdiklerine destek olmak isteyen insanların hikayesi."
+                "SomTel ile sadece para değil, sevgi ve güven gönderirsiniz.",
+            "kg": "📘 SomTel — бул Кыргызстан менен Түркиянын ортосундагы акча которууларды жеңилдеткен ишенимдүү эл аралык кызмат."
+                        "Биз ар бир кардардын ишенимине татыктуу болууну, ар бир которуунун коопсуздугун жана ылдамдыгын камсыздоону эң башкы максат катары коёбуз."
+                        ""
+                        "Биз билебиз — чет өлкөдө жүрүп, үй-бүлөңө акча жөнөтүү бул жөн гана каржылык маселе эмес, бул сүйүү жана жоопкерчилик белгиси. Ошондуктан SomTel сиздин ар бир которууңузду өз акчасындай коргойт."
+                        ""
+                        "SomTel аркылуу акча жөнөтүү:"
+                        "✅ Ылдам — которуу бир нече мүнөттө иштетилет."
+                        "✅ Коопсуз — бардык маалыматтар корголгон жана шифрленген."
+                        "✅ Төмөн комиссия — ар бир кардар үчүн эң пайдалуу тарифтер."
+                        "✅ Колоо кызматы — биздин команда ар дайым жардам берүүгө даяр."
+
+                        "Биз Кыргызстан менен Түркиянын ортосундагы көпүрө болууну каалайбыз — ишеним, боордоштук жана чыныгы кызмат аркылуу."
+                        "SomTel — бул жөн гана акча которуу эмес, бул жакындарыңыз менен байланышты сактоонун эң оңой жолу.",
+            "ru": "SomTel — это международный сервис, созданный для надежных и быстрых денежных переводов между Кыргызстаном и Турцией."
+                    "Наша миссия — обеспечить каждому клиенту удобный, безопасный и выгодный способ отправки денег своим близким."
+                    "   "
+                    "Мы понимаем, что перевод денег домой — это не просто финансовая операция. Это акт заботы, любви и доверия. Поэтому SomTel гарантирует полную безопасность каждой транзакции и конфиденциальность всех данных."
+                        "   "
+                    "С SomTel вы получаете:"
+                    "✅ Быструю обработку переводов — деньги доходят за считанные минуты."
+                    "✅ Полную безопасность — защита данных на всех этапах."
+                    "✅ Низкие комиссии — прозрачные и честные условия."
+                    "✅ Поддержку клиентов — мы всегда рядом, чтобы помочь."
+                        "   "
+                    "Мы строим мост между Кыргызстаном и Турцией, основанный на доверии, уважении и взаимопомощи."
+                    "SomTel — это не просто переводы. Это связь с родными, где бы вы ни находились."
         }
         text = info[lang]
     elif data == "menu_2":  # Ücret hesapla
@@ -188,18 +228,20 @@ async def calculate_fee(message: Message):
         return
 
     if sender == "TR":
-        if amount <= 19999:
+        if amount <= 9999:
+            rate = 0.025
+        elif amount <= 19999:
             rate = 0.02
         elif amount <= 34999:
-            rate = 0.017
+            rate = 0.018
         else:
-            rate = 0.015
+            rate = 0.016
         currency = "TL"
     else:
         if amount <= 49999:
-            rate = 0.022
+            rate = 0.019
         elif amount <= 99999:
-            rate = 0.018
+            rate = 0.017
         else:
             rate = 0.015
         currency = "SOM"
@@ -219,4 +261,6 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
+    keep_alive()
     asyncio.run(main())
+
